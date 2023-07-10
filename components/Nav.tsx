@@ -14,20 +14,19 @@ import {
 import { BuiltInProviderType } from 'next-auth/providers';
 
 const Nav = () => {
-  const isUserLogged = true;
+  const { data: session } = useSession();
 
-  const [providersAuth, setProvidersAuth] = useState<Record<
+  const [providers, setProviders] = useState<Record<
     LiteralUnion<BuiltInProviderType, string>,
     ClientSafeProvider
   > | null>(null);
   const [toggleDropdown, setToggleDropdown] = useState(false);
 
   useEffect(() => {
-    const setProviders = async () => {
-      const response = await getProviders();
-
-      setProvidersAuth(response);
-    };
+    (async () => {
+      const res = await getProviders();
+      setProviders(res);
+    })();
   }, []);
   return (
     <nav className="flex-between w-full mb-16 pt-3">
@@ -41,9 +40,9 @@ const Nav = () => {
         />
         <p className="logo_text">Promptopia</p>
       </Link>
-      {/* Desktop */}
+
       <div className="sm:flex hidden">
-        {isUserLogged ? (
+        {session?.user ? (
           <div className="flex gap-3 md:gap-5 border-none">
             <Link href={'/create-prompt'} className="black_btn">
               Create Post
@@ -67,8 +66,8 @@ const Nav = () => {
           </div>
         ) : (
           <>
-            {providersAuth
-              ? Object.values(providersAuth).map((provider) => {
+            {providers
+              ? Object.values(providers).map((provider) => {
                   return (
                     <button
                       type="button"
@@ -86,7 +85,7 @@ const Nav = () => {
       </div>
       {/* Mobile */}
       <div className="sm:hidden flex relative">
-        {isUserLogged ? (
+        {session?.user ? (
           <div className="flex">
             <Image
               src={'/assets/images/logo.svg'}
@@ -127,8 +126,8 @@ const Nav = () => {
           </div>
         ) : (
           <>
-            {providersAuth
-              ? Object.values(providersAuth).map((provider) => {
+            {providers
+              ? Object.values(providers).map((provider) => {
                   return (
                     <button
                       type="button"
